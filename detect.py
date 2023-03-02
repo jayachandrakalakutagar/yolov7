@@ -21,6 +21,11 @@ def detect(save_img=False):
     webcam = source.isnumeric() or source.endswith('.txt') or source.lower().startswith(
         ('rtsp://', 'rtmp://', 'http://', 'https://'))
 
+
+    #my addition
+
+    save_txt=True
+
     # Directories
     save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -120,12 +125,21 @@ def detect(save_img=False):
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
-                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)  # label format
+                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)
+                        
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
                     if save_img or view_img:  # Add bbox to image
+                        
                         label = f'{names[int(cls)]} {conf:.2f}'
+                        if save_txt:
+                          x=line[1]
+                          x=round(x,5)
+                          
+                          y=line[2]
+                          y=round(y,5)
+                          label=f'{label} {x},{y}'
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
             # Print time (inference + NMS)
