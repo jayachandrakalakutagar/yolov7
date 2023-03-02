@@ -1,7 +1,7 @@
 import argparse
 import time
 from pathlib import Path
-
+import math
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
@@ -25,7 +25,9 @@ def detect(save_img=False):
     #my addition
 
     save_txt=True
-
+    one_x=-1
+    two_x=-1
+    
     # Directories
     save_dir = Path(increment_path(Path(opt.project) / opt.name, exist_ok=opt.exist_ok))  # increment run
     (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
@@ -121,6 +123,31 @@ def detect(save_img=False):
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
+
+
+
+
+               #getting locations of one and 2two
+
+                
+               
+               
+                for *xyxy, conf, cls in reversed(det):
+                    if (one_x!=-1) and (two_x!=-1):
+                      break
+                    if save_txt:  # Write to file
+                        xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
+                        line = (cls, *xywh, conf) if opt.save_conf else (cls, *xywh)
+
+                        if(names[int(cls)]=='one' and one_x==-1):
+                          one_x=line[1]
+                          print(f"1 loc is {line[1]},{line[2]}")
+
+                        elif(names[int(cls)]=='two' and two_x==0):
+                          two_x=line[1]
+                          print(f"2 loc is {line[1]},{line[2]}")
+
+
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
@@ -140,6 +167,16 @@ def detect(save_img=False):
                           y=line[2]
                           y=round(y,5)
                           label=f'{label} {x},{y}'
+
+                        if names[int(cls)]=='good':
+                          if one_x!=-1:
+                            if abs(line[1]-one_x)<0.10:
+                              label=label+"\n activate 1"
+
+                        elif names[int(cls)]=='bad':
+                          if two_x!=0:
+                            if abs (line[1]-two_x)<0.10:
+                              label=label+"\n activate 2"
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
             # Print time (inference + NMS)
