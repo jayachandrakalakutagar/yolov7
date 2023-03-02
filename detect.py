@@ -143,7 +143,7 @@ def detect(save_img=False):
                           one_x=line[1]
                           print(f"1 loc is {line[1]},{line[2]}")
 
-                        elif(names[int(cls)]=='two' and two_x==0):
+                        elif(names[int(cls)]=='two' and two_x==-1):
                           two_x=line[1]
                           print(f"2 loc is {line[1]},{line[2]}")
 
