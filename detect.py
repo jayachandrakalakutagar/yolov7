@@ -170,13 +170,13 @@ def detect(save_img=False):
 
                         if names[int(cls)]=='good':
                           if one_x!=-1:
-                            if abs(line[1]-one_x)<0.10:
-                              label=label+"\n activate 1"
+                            if (line[1]-one_x)<0.10 and (line[1]-one_x)>=0 :
+                              label="Activate 1"
 
                         elif names[int(cls)]=='bad':
                           if two_x!=0:
-                            if abs (line[1]-two_x)<0.10:
-                              label=label+"\n activate 2"
+                            if (line[1]-two_x)<0.10 and (line[1]-two_x)>=0 :
+                              label="Activate 2"
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
             # Print time (inference + NMS)
