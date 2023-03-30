@@ -6,7 +6,7 @@ import cv2
 import torch
 import torch.backends.cudnn as cudnn
 from numpy import random
-
+import numpy as np
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
 from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
@@ -102,7 +102,7 @@ def detect(save_img=False):
         # Apply Classifier
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
-
+        
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
@@ -133,6 +133,7 @@ def detect(save_img=False):
                
                
                 for *xyxy, conf, cls in reversed(det):
+                    print(f"det shape is {det.shape}")
                     if (one_x!=-1) and (two_x!=-1):
                       break
                     if save_txt:  # Write to file
@@ -147,7 +148,7 @@ def detect(save_img=False):
                           two_x=line[1]
                           print(f"2 loc is {line[1]},{line[2]}")
 
-
+                xy_seed=[]
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
                     if save_txt:  # Write to file
@@ -166,7 +167,18 @@ def detect(save_img=False):
                           
                           y=line[2]
                           y=round(y,5)
+
+                          w=line[3]
+                          w=round(w,5)
+
+                          h=line[4]
+                          w=round(w,5)
+
                           label=f'{label} {x},{y}'
+
+                        
+
+                        
 
                         if names[int(cls)]=='good':
                           if one_x!=-1:
@@ -177,6 +189,10 @@ def detect(save_img=False):
                           if two_x!=0:
                             if (line[1]-two_x)<0.10 and (line[1]-two_x)>=0 :
                               label="Activate 2"
+
+                        if names[int(cls)]=='good' or names[int(cls)]=='bad':
+                          xy_seed.append([x,y,w,h,xyxy,im0])
+                          print(im0.shape)
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
 
             # Print time (inference + NMS)
